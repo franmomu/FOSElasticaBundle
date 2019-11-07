@@ -39,7 +39,7 @@ class IndexConfig implements IndexConfigInterface
      * @param TypeConfig[] $types
      * @param array        $config
      */
-    public function __construct($name, array $types, array $config)
+    public function __construct(string $name, array $types, array $config)
     {
         $this->elasticSearchName = isset($config['elasticSearchName']) ? $config['elasticSearchName'] : $name;
         $this->name = $name;
@@ -48,10 +48,7 @@ class IndexConfig implements IndexConfigInterface
         $this->useAlias = isset($config['useAlias']) ? $config['useAlias'] : false;
     }
 
-    /**
-     * @return bool
-     */
-    public function isUseAlias()
+    public function isUseAlias(): bool
     {
         return $this->useAlias;
     }

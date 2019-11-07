@@ -82,11 +82,9 @@ class Client extends BaseClient
     }
 
     /**
-     * @param string $name
-     *
-     * @return Index|mixed
+     * @return Index
      */
-    public function getIndex($name)
+    public function getIndex(string $name)
     {
         if (isset($this->indexCache[$name])) {
             return $this->indexCache[$name];
@@ -125,7 +123,7 @@ class Client extends BaseClient
      * @param int    $engineMS
      * @param int    $itemCount
      */
-    private function logQuery($path, $method, $data, array $query, $queryTime, $engineMS = 0, $itemCount = 0)
+    private function logQuery($path, $method, $data, array $query, $queryTime, $engineMS = 0, $itemCount = 0): void
     {
         if (!$this->_logger or !$this->_logger instanceof ElasticaLogger) {
             return;
