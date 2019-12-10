@@ -21,16 +21,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 class TypePopulateEvent extends IndexPopulateEvent
 {
     /**
-     * @Event("FOS\ElasticaBundle\Event\TypePopulateEvent")
-     */
-    const PRE_TYPE_POPULATE = 'elastica.index.type_pre_populate';
-
-    /**
-     * @Event("FOS\ElasticaBundle\Event\TypePopulateEvent")
-     */
-    const POST_TYPE_POPULATE = 'elastica.index.type_post_populate';
-
-    /**
      * @var string
      */
     private $type;

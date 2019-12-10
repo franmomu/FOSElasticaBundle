@@ -11,8 +11,6 @@
 
 namespace FOS\ElasticaBundle\Event;
 
-use Symfony\Contracts\EventDispatcher\Event;
-
 /**
  * Type ResetEvent.
  *
@@ -20,16 +18,6 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class TypeResetEvent extends IndexEvent
 {
-    /**
-     * @Event("FOS\ElasticaBundle\Event\TypeResetEvent")
-     */
-    const PRE_TYPE_RESET = 'elastica.index.type_pre_reset';
-
-    /**
-     * @Event("FOS\ElasticaBundle\Event\TypeResetEvent")
-     */
-    const POST_TYPE_RESET = 'elastica.index.type_post_reset';
-
     /**
      * @var string
      */

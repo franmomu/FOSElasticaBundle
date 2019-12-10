@@ -12,6 +12,8 @@
 namespace FOS\ElasticaBundle\Transformer;
 
 use Elastica\Document;
+use FOS\ElasticaBundle\Event\PostTransformEvent;
+use FOS\ElasticaBundle\Event\PreTransformEvent;
 use FOS\ElasticaBundle\Event\TransformEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\LegacyEventDispatcherProxy;
@@ -158,8 +160,8 @@ class ModelToElasticaAutoTransformer implements ModelToElasticaTransformerInterf
         $document = new Document($identifier, [], '', $this->options['index']);
 
         if ($this->dispatcher) {
-            $event = new TransformEvent($document, $fields, $object);
-            $this->dispatcher->dispatch(TransformEvent::PRE_TRANSFORM, $event);
+            $event = new PreTransformEvent($document, $fields, $object);
+            $this->dispatcher->dispatch($event);
 
             $document = $event->getDocument();
         }
@@ -208,8 +210,8 @@ class ModelToElasticaAutoTransformer implements ModelToElasticaTransformerInterf
         }
 
         if ($this->dispatcher) {
-            $event = new TransformEvent($document, $fields, $object);
-            $this->dispatcher->dispatch(TransformEvent::POST_TRANSFORM, $event);
+            $event = new PostTransformEvent($document, $fields, $object);
+            $this->dispatcher->dispatch($event);
 
             $document = $event->getDocument();
         }

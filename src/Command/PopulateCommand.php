@@ -13,6 +13,10 @@ namespace FOS\ElasticaBundle\Command;
 
 use Elastica\Exception\Bulk\ResponseException as BulkResponseException;
 use FOS\ElasticaBundle\Event\IndexPopulateEvent;
+use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
+use FOS\ElasticaBundle\Event\PostTypePopulateEvent;
+use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
+use FOS\ElasticaBundle\Event\PreTypePopulateEvent;
 use FOS\ElasticaBundle\Event\TypePopulateEvent;
 use FOS\ElasticaBundle\Index\IndexManager;
 use FOS\ElasticaBundle\Index\Resetter;
@@ -80,11 +84,6 @@ class PopulateCommand extends Command
         parent::__construct();
 
         $this->dispatcher = $dispatcher;
-
-        if (class_exists(LegacyEventDispatcherProxy::class)) {
-            $this->dispatcher = LegacyEventDispatcherProxy::decorate($dispatcher);
-        }
-
         $this->indexManager = $indexManager;
         $this->pagerProviderRegistry = $pagerProviderRegistry;
         $this->pagerPersisterRegistry = $pagerPersisterRegistry;
@@ -183,8 +182,8 @@ class PopulateCommand extends Command
      */
     private function populateIndex(OutputInterface $output, $index, $reset, $options)
     {
-        $event = new IndexPopulateEvent($index, $reset, $options);
-        $this->dispatcher->dispatch(IndexPopulateEvent::PRE_INDEX_POPULATE, $event);
+        $event = new PreIndexPopulateEvent($index, $reset, $options);
+        $this->dispatcher->dispatch($event);
 
         if ($event->isReset()) {
             $output->writeln(sprintf('<info>Resetting</info> <comment>%s</comment>', $index));
@@ -196,7 +195,7 @@ class PopulateCommand extends Command
             $this->populateIndexType($output, $index, $type, false, $event->getOptions());
         }
 
-        $this->dispatcher->dispatch(IndexPopulateEvent::POST_INDEX_POPULATE, $event);
+        $this->dispatcher->dispatch(new PostIndexPopulateEvent($index, $reset, $options));
 
         $this->refreshIndex($output, $index);
     }
@@ -212,8 +211,8 @@ class PopulateCommand extends Command
      */
     private function populateIndexType(OutputInterface $output, $index, $type, $reset, $options)
     {
-        $event = new TypePopulateEvent($index, $type, $reset, $options);
-        $this->dispatcher->dispatch(TypePopulateEvent::PRE_TYPE_POPULATE, $event);
+        $event = new PreTypePopulateEvent($index, $type, $reset, $options);
+        $this->dispatcher->dispatch($event);
 
         if ($event->isReset()) {
             $output->writeln(sprintf('<info>Resetting</info> <comment>%s/%s</comment>', $index, $type));
@@ -265,7 +264,7 @@ class PopulateCommand extends Command
 
         $this->pagerPersister->insert($pager, $options);
 
-        $this->dispatcher->dispatch(TypePopulateEvent::POST_TYPE_POPULATE, $event);
+        $this->dispatcher->dispatch(new PostTypePopulateEvent($index, $type, $reset, $options));
 
         $this->refreshIndex($output, $index);
     }
