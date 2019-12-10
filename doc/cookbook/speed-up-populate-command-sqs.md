@@ -52,7 +52,7 @@ services:
             $queueName: "%aws_sqs_queue_name%"
             $replyQueueName: "%aws_sqs_reply_queue_name%"
         tags:
-            - { name: kernel.event_listener, event: elastica.pager_persister.pre_persist, method: prePersist }
+            - { name: kernel.event_listener, event: FOS\ElasticaBundle\Persister\Event\PrePersistEvent, method: prePersist }
 ```
 
 Here is a simple implementation of `QueuePagerPersister` that is aware of AWS, again it takes the parameters you defined above.
