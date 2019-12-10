@@ -22,9 +22,6 @@ class AliasProcessor
 {
     /**
      * Sets the randomised root name for an index.
-     *
-     * @param IndexConfig $indexConfig
-     * @param Index       $index
      */
     public function setRootName(IndexConfig $indexConfig, Index $index)
     {
@@ -42,10 +39,8 @@ class AliasProcessor
      *
      * $force will delete an index encountered where an alias is expected.
      *
-     * @param IndexConfig $indexConfig
-     * @param Index       $index
-     * @param bool        $force
-     * @param bool        $delete
+     * @param bool $force
+     * @param bool $delete
      *
      * @throws AliasIsIndexException
      */
@@ -118,9 +113,7 @@ class AliasProcessor
     /**
      * Cleans up an index when we encounter a failure to rename the alias.
      *
-     * @param Client     $client
-     * @param string     $indexName
-     * @param \Exception $renameAliasException
+     * @param string $indexName
      */
     private function cleanupRenameFailure(Client $client, $indexName, \Exception $renameAliasException)
     {
@@ -145,7 +138,6 @@ class AliasProcessor
     /**
      * Delete an index.
      *
-     * @param Client $client
      * @param string $indexName Index name to delete
      */
     private function deleteIndex(Client $client, $indexName)
@@ -165,7 +157,6 @@ class AliasProcessor
     /**
      * Close an index.
      *
-     * @param Client $client
      * @param string $indexName
      */
     private function closeIndex(Client $client, $indexName)
@@ -190,7 +181,6 @@ class AliasProcessor
      * Returns the name of a single index that an alias points to or throws
      * an exception if there is more than one.
      *
-     * @param Client $client
      * @param string $aliasName Alias name
      *
      * @return string|null

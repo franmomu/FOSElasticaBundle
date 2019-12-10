@@ -25,9 +25,6 @@ class ElasticaToModelTransformerCollection implements ElasticaToModelTransformer
      */
     protected $transformers = [];
 
-    /**
-     * @param array $transformers
-     */
     public function __construct(array $transformers)
     {
         $this->transformers = $transformers;

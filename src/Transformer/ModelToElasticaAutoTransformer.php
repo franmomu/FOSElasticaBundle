@@ -14,7 +14,6 @@ namespace FOS\ElasticaBundle\Transformer;
 use Elastica\Document;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use FOS\ElasticaBundle\Event\PreTransformEvent;
-use FOS\ElasticaBundle\Event\TransformEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\LegacyEventDispatcherProxy;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
@@ -51,7 +50,6 @@ class ModelToElasticaAutoTransformer implements ModelToElasticaTransformerInterf
     /**
      * Instanciates a new Mapper.
      *
-     * @param array                    $options
      * @param EventDispatcherInterface $dispatcher
      */
     public function __construct(array $options = [], EventDispatcherInterface $dispatcher = null)
@@ -66,8 +64,6 @@ class ModelToElasticaAutoTransformer implements ModelToElasticaTransformerInterf
 
     /**
      * Set the PropertyAccessor.
-     *
-     * @param PropertyAccessorInterface $propertyAccessor
      */
     public function setPropertyAccessor(PropertyAccessorInterface $propertyAccessor)
     {

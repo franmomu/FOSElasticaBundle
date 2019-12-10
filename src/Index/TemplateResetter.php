@@ -1,13 +1,23 @@
 <?php
+
+/*
+ * This file is part of the FOSElasticaBundle package.
+ *
+ * (c) FriendsOfSymfony <http://friendsofsymfony.github.com/>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FOS\ElasticaBundle\Index;
 
-use FOS\ElasticaBundle\Configuration\ManagerInterface;
 use Elastica\Client;
 use Elastica\Request;
 use FOS\ElasticaBundle\Configuration\IndexTemplateConfig;
+use FOS\ElasticaBundle\Configuration\ManagerInterface;
 
 /**
- * Class Template resetter
+ * Class Template resetter.
  *
  * @author Dmitry Balabka <dmitry.balabka@intexsys.lv>
  */
@@ -29,7 +39,7 @@ class TemplateResetter implements ResetterInterface
     private $client;
 
     /**
-     * Index template manager
+     * Index template manager.
      *
      * @var IndexTemplateManager
      */
@@ -72,12 +82,10 @@ class TemplateResetter implements ResetterInterface
     }
 
     /**
-     * Delete all template indexes
-     *
-     * @param IndexTemplateConfig $template
+     * Delete all template indexes.
      */
     public function deleteTemplateIndexes(IndexTemplateConfig $template)
     {
-        $this->client->request($template->getTemplate() . '/', Request::DELETE);
+        $this->client->request($template->getTemplate().'/', Request::DELETE);
     }
 }

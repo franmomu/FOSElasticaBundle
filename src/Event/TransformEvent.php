@@ -32,8 +32,7 @@ class TransformEvent extends Event
     private $object;
 
     /**
-     * @param mixed $document
-     * @param array $fields
+     * @param mixed  $document
      * @param object $object
      */
     public function __construct($document, array $fields, $object)

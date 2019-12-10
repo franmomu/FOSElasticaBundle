@@ -32,7 +32,7 @@ class POPO3
     public $fileContents;
 
     /**
-     * test non-accessible private property
+     * test non-accessible private property.
      */
     private $desc = 'desc';
 
@@ -547,7 +547,7 @@ class ModelToElasticaAutoTransformerTest extends TestCase
 
     public function testIdentifierIsCastedToString()
     {
-        $idObject = new CastableObject();;
+        $idObject = new CastableObject();
         $idObject->foo = '00000000-0000-0000-0000-000000000000';
 
         $object = new \stdClass();
@@ -560,7 +560,7 @@ class ModelToElasticaAutoTransformerTest extends TestCase
     }
 
     /**
-     * @param null|EventDispatcherInterface $dispatcher
+     * @param EventDispatcherInterface|null $dispatcher
      *
      * @return ModelToElasticaAutoTransformer
      */

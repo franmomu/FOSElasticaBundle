@@ -33,10 +33,7 @@ class ObjectPersister implements ObjectPersisterInterface
     private $options;
 
     /**
-     * @param Type                                $type
-     * @param ModelToElasticaTransformerInterface $transformer
-     * @param string                              $objectClass
-     * @param array                               $fields
+     * @param string $objectClass
      */
     public function __construct(Type $type, ModelToElasticaTransformerInterface $transformer, $objectClass, array $fields, array $options = [])
     {
@@ -55,9 +52,6 @@ class ObjectPersister implements ObjectPersisterInterface
         return $object instanceof $this->objectClass;
     }
 
-    /**
-     * @param LoggerInterface $logger
-     */
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
@@ -172,8 +166,6 @@ class ObjectPersister implements ObjectPersisterInterface
 
     /**
      * Log exception if logger defined for persister belonging to the current listener, otherwise re-throw.
-     *
-     * @param BulkException $e
      *
      * @throws BulkException
      */

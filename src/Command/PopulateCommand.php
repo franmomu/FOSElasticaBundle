@@ -12,12 +12,10 @@
 namespace FOS\ElasticaBundle\Command;
 
 use Elastica\Exception\Bulk\ResponseException as BulkResponseException;
-use FOS\ElasticaBundle\Event\IndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PostTypePopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreTypePopulateEvent;
-use FOS\ElasticaBundle\Event\TypePopulateEvent;
 use FOS\ElasticaBundle\Index\IndexManager;
 use FOS\ElasticaBundle\Index\Resetter;
 use FOS\ElasticaBundle\Persister\Event\OnExceptionEvent;
@@ -35,7 +33,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\LegacyEventDispatcherProxy;
 
 /**
  * Populate the search index.
@@ -175,10 +172,9 @@ class PopulateCommand extends Command
     /**
      * Recreates an index, populates its types, and refreshes the index.
      *
-     * @param OutputInterface $output
-     * @param string          $index
-     * @param bool            $reset
-     * @param array           $options
+     * @param string $index
+     * @param bool   $reset
+     * @param array  $options
      */
     private function populateIndex(OutputInterface $output, $index, $reset, $options)
     {
@@ -203,11 +199,10 @@ class PopulateCommand extends Command
     /**
      * Deletes/remaps an index type, populates it, and refreshes the index.
      *
-     * @param OutputInterface $output
-     * @param string          $index
-     * @param string          $type
-     * @param bool            $reset
-     * @param array           $options
+     * @param string $index
+     * @param string $type
+     * @param bool   $reset
+     * @param array  $options
      */
     private function populateIndexType(OutputInterface $output, $index, $type, $reset, $options)
     {
@@ -224,7 +219,7 @@ class PopulateCommand extends Command
 
         $this->dispatcher->addListener(
             OnExceptionEvent::class,
-            function(OnExceptionEvent $event) use ($loggerClosure) {
+            function (OnExceptionEvent $event) use ($loggerClosure) {
                 $loggerClosure(
                     count($event->getObjects()),
                     $event->getPager()->getNbResults(),
@@ -235,20 +230,20 @@ class PopulateCommand extends Command
 
         $this->dispatcher->addListener(
             PostInsertObjectsEvent::class,
-            function(PostInsertObjectsEvent $event) use ($loggerClosure) {
+            function (PostInsertObjectsEvent $event) use ($loggerClosure) {
                 $loggerClosure(count($event->getObjects()), $event->getPager()->getNbResults());
             }
         );
 
         $this->dispatcher->addListener(
             PostAsyncInsertObjectsEvent::class,
-            function(PostAsyncInsertObjectsEvent $event) use ($loggerClosure) {
+            function (PostAsyncInsertObjectsEvent $event) use ($loggerClosure) {
                 $loggerClosure($event->getObjectsCount(), $event->getPager()->getNbResults(), $event->getErrorMessage());
             }
         );
 
         if ($options['ignore_errors']) {
-            $this->dispatcher->addListener(OnExceptionEvent::class, function(OnExceptionEvent $event) {
+            $this->dispatcher->addListener(OnExceptionEvent::class, function (OnExceptionEvent $event) {
                 if ($event->getException() instanceof BulkResponseException) {
                     $event->setIgnore(true);
                 }
@@ -272,13 +267,12 @@ class PopulateCommand extends Command
     /**
      * Refreshes an index.
      *
-     * @param OutputInterface $output
-     * @param string          $index
+     * @param string $index
      */
     private function refreshIndex(OutputInterface $output, $index)
     {
         $output->writeln(sprintf('<info>Refreshing</info> <comment>%s</comment>', $index));
         $this->indexManager->getIndex($index)->refresh();
-        $output->writeln("");
+        $output->writeln('');
     }
 }

@@ -16,12 +16,10 @@ use FOS\ElasticaBundle\Configuration\ConfigManager;
 use FOS\ElasticaBundle\Configuration\IndexConfig;
 use FOS\ElasticaBundle\Configuration\TypeConfig;
 use FOS\ElasticaBundle\Elastica\Index;
-use FOS\ElasticaBundle\Event\IndexResetEvent;
 use FOS\ElasticaBundle\Event\PostIndexResetEvent;
 use FOS\ElasticaBundle\Event\PostTypeResetEvent;
 use FOS\ElasticaBundle\Event\PreIndexResetEvent;
 use FOS\ElasticaBundle\Event\PreTypeResetEvent;
-use FOS\ElasticaBundle\Event\TypeResetEvent;
 use FOS\ElasticaBundle\Index\AliasProcessor;
 use FOS\ElasticaBundle\Index\IndexManager;
 use FOS\ElasticaBundle\Index\MappingBuilder;
@@ -235,6 +233,11 @@ class ResetterTest extends TestCase
         $this->resetter->switchIndexAlias('index');
     }
 
+    public function testResetterImplementsResetterInterface()
+    {
+        $this->assertInstanceOf(ResetterInterface::class, $this->resetter);
+    }
+
     private function dispatcherExpects(array $events)
     {
         $expectation = $this->dispatcher->expects($this->exactly(count($events)))
@@ -287,10 +290,5 @@ class ResetterTest extends TestCase
             ->willReturn($mapping);
 
         return $index;
-    }
-
-    public function testResetterImplementsResetterInterface()
-    {
-        $this->assertInstanceOf(ResetterInterface::class, $this->resetter);
     }
 }

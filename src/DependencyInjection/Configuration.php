@@ -450,7 +450,7 @@ class Configuration implements ConfigurationInterface
                                         ->arrayNode('http_error_codes')
                                             ->beforeNormalization()
                                                 ->ifTrue(function ($v) { return !is_array($v); })
-                                                ->then(function ($v) { return array($v); })
+                                                ->then(function ($v) { return [$v]; })
                                             ->end()
                                             ->requiresAtLeastOneElement()
                                             ->defaultValue([400, 403, 404])
@@ -553,8 +553,6 @@ class Configuration implements ConfigurationInterface
 
     /**
      * Adds the configuration for the "index_templates" key.
-     *
-     * @param ArrayNodeDefinition $rootNode
      *
      * @return void
      */
