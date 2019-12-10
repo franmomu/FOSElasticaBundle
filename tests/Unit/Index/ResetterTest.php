@@ -16,8 +16,10 @@ use FOS\ElasticaBundle\Configuration\ConfigManager;
 use FOS\ElasticaBundle\Configuration\IndexConfig;
 use FOS\ElasticaBundle\Configuration\TypeConfig;
 use FOS\ElasticaBundle\Elastica\Index;
-use FOS\ElasticaBundle\Event\IndexResetEvent;
-use FOS\ElasticaBundle\Event\TypeResetEvent;
+use FOS\ElasticaBundle\Event\PostIndexResetEvent;
+use FOS\ElasticaBundle\Event\PostTypeResetEvent;
+use FOS\ElasticaBundle\Event\PreIndexResetEvent;
+use FOS\ElasticaBundle\Event\PreTypeResetEvent;
 use FOS\ElasticaBundle\Index\AliasProcessor;
 use FOS\ElasticaBundle\Index\IndexManager;
 use FOS\ElasticaBundle\Index\MappingBuilder;
@@ -69,8 +71,8 @@ class ResetterTest extends TestCase
             ->will($this->returnValue([$indexName]));
 
         $this->dispatcherExpects([
-            [IndexResetEvent::PRE_INDEX_RESET, $this->isInstanceOf(IndexResetEvent::class)],
-            [IndexResetEvent::POST_INDEX_RESET, $this->isInstanceOf(IndexResetEvent::class)],
+            [$this->isInstanceOf(PreIndexResetEvent::class)],
+            [$this->isInstanceOf(PostIndexResetEvent::class)],
         ]);
 
         $this->elasticaClient->expects($this->exactly(2))
@@ -85,8 +87,8 @@ class ResetterTest extends TestCase
         $this->mockIndex('index1', $indexConfig);
 
         $this->dispatcherExpects([
-            [IndexResetEvent::PRE_INDEX_RESET, $this->isInstanceOf(IndexResetEvent::class)],
-            [IndexResetEvent::POST_INDEX_RESET, $this->isInstanceOf(IndexResetEvent::class)],
+            [$this->isInstanceOf(PreIndexResetEvent::class)],
+            [$this->isInstanceOf(PostIndexResetEvent::class)],
         ]);
 
         $this->elasticaClient->expects($this->exactly(2))
@@ -102,8 +104,8 @@ class ResetterTest extends TestCase
         ]);
         $this->mockIndex('index1', $indexConfig);
         $this->dispatcherExpects([
-            [IndexResetEvent::PRE_INDEX_RESET, $this->isInstanceOf(IndexResetEvent::class)],
-            [IndexResetEvent::POST_INDEX_RESET, $this->isInstanceOf(IndexResetEvent::class)],
+            [$this->isInstanceOf(PreIndexResetEvent::class)],
+            [$this->isInstanceOf(PostIndexResetEvent::class)],
         ]);
 
         $this->elasticaClient->expects($this->exactly(2))
@@ -120,8 +122,8 @@ class ResetterTest extends TestCase
         ]);
         $index = $this->mockIndex('index1', $indexConfig);
         $this->dispatcherExpects([
-            [IndexResetEvent::PRE_INDEX_RESET, $this->isInstanceOf(IndexResetEvent::class)],
-            [IndexResetEvent::POST_INDEX_RESET, $this->isInstanceOf(IndexResetEvent::class)],
+            [$this->isInstanceOf(PreIndexResetEvent::class)],
+            [$this->isInstanceOf(PostIndexResetEvent::class)],
         ]);
 
         $this->aliasProcessor->expects($this->once())
@@ -157,10 +159,10 @@ class ResetterTest extends TestCase
         $this->mockType('type', 'index', $typeConfig, $indexConfig);
 
         $this->dispatcherExpects([
-            [IndexResetEvent::PRE_INDEX_RESET, $this->isInstanceOf(IndexResetEvent::class)],
-            [IndexResetEvent::POST_INDEX_RESET, $this->isInstanceOf(IndexResetEvent::class)],
-            [TypeResetEvent::PRE_TYPE_RESET, $this->isInstanceOf(TypeResetEvent::class)],
-            [TypeResetEvent::POST_TYPE_RESET, $this->isInstanceOf(TypeResetEvent::class)],
+            [$this->isInstanceOf(PreIndexResetEvent::class)],
+            [$this->isInstanceOf(PostIndexResetEvent::class)],
+            [$this->isInstanceOf(PreTypeResetEvent::class)],
+            [$this->isInstanceOf(PostTypeResetEvent::class)],
         ]);
 
         $this->elasticaClient->expects($this->exactly(3))
@@ -231,6 +233,11 @@ class ResetterTest extends TestCase
         $this->resetter->switchIndexAlias('index');
     }
 
+    public function testResetterImplementsResetterInterface()
+    {
+        $this->assertInstanceOf(ResetterInterface::class, $this->resetter);
+    }
+
     private function dispatcherExpects(array $events)
     {
         $expectation = $this->dispatcher->expects($this->exactly(count($events)))
@@ -283,10 +290,5 @@ class ResetterTest extends TestCase
             ->willReturn($mapping);
 
         return $index;
-    }
-
-    public function testResetterImplementsResetterInterface()
-    {
-        $this->assertInstanceOf(ResetterInterface::class, $this->resetter);
     }
 }

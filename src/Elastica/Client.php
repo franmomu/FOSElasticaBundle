@@ -37,7 +37,7 @@ class Client extends BaseClient
      *
      * @var array
      */
-    private $indexTemplateCache = array();
+    private $indexTemplateCache = [];
 
     /**
      * Symfony's debugging Stopwatch.
@@ -117,13 +117,12 @@ class Client extends BaseClient
     /**
      * Log the query if we have an instance of ElasticaLogger.
      *
-     * @param string $path
-     * @param string $method
+     * @param string       $path
+     * @param string       $method
      * @param array|string $data
-     * @param array  $query
-     * @param int    $queryTime
-     * @param int    $engineMS
-     * @param int    $itemCount
+     * @param int          $queryTime
+     * @param int          $engineMS
+     * @param int          $itemCount
      */
     private function logQuery($path, $method, $data, array $query, $queryTime, $engineMS = 0, $itemCount = 0)
     {

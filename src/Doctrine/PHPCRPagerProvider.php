@@ -35,17 +35,14 @@ final class PHPCRPagerProvider implements PagerProviderInterface
      * @var array
      */
     private $baseOptions;
-    
+
     /**
      * @var RegisterListenersService
      */
     private $registerListenersService;
 
     /**
-     * @param ManagerRegistry $doctrine
-     * @param RegisterListenersService $registerListenersService
      * @param string $objectClass
-     * @param array $baseOptions
      */
     public function __construct(ManagerRegistry $doctrine, RegisterListenersService $registerListenersService, $objectClass, array $baseOptions)
     {
@@ -58,19 +55,19 @@ final class PHPCRPagerProvider implements PagerProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function provide(array $options = array())
+    public function provide(array $options = [])
     {
         $options = array_replace($this->baseOptions, $options);
 
         $manager = $this->doctrine->getManagerForClass($this->objectClass);
         $repository = $manager->getRepository($this->objectClass);
-        
+
         $adapter = new DoctrineODMPhpcrAdapter(
             call_user_func([$repository, $options['query_builder_method']], static::ENTITY_ALIAS)
         );
-        
+
         $pager = new PagerfantaPager(new Pagerfanta($adapter));
-        
+
         $this->registerListenersService->register($manager, $pager, $options);
 
         return $pager;

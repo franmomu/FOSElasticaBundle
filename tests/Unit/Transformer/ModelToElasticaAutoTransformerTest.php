@@ -12,7 +12,8 @@
 namespace FOS\ElasticaBundle\Tests\Unit\Transformer;
 
 use Elastica\Document;
-use FOS\ElasticaBundle\Event\TransformEvent;
+use FOS\ElasticaBundle\Event\PostTransformEvent;
+use FOS\ElasticaBundle\Event\PreTransformEvent;
 use FOS\ElasticaBundle\Transformer\ModelToElasticaAutoTransformer;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -31,7 +32,7 @@ class POPO3
     public $fileContents;
 
     /**
-     * test non-accessible private property
+     * test non-accessible private property.
      */
     private $desc = 'desc';
 
@@ -173,12 +174,10 @@ class ModelToElasticaAutoTransformerTest extends TestCase
             ->method('dispatch')
             ->withConsecutive(
                 [
-                    TransformEvent::PRE_TRANSFORM,
-                    $this->isInstanceOf(TransformEvent::class),
+                    $this->isInstanceOf(PreTransformEvent::class),
                 ],
                 [
-                    TransformEvent::POST_TRANSFORM,
-                    $this->isInstanceOf(TransformEvent::class),
+                    $this->isInstanceOf(PostTransformEvent::class),
                 ]
             );
 
@@ -548,7 +547,7 @@ class ModelToElasticaAutoTransformerTest extends TestCase
 
     public function testIdentifierIsCastedToString()
     {
-        $idObject = new CastableObject();;
+        $idObject = new CastableObject();
         $idObject->foo = '00000000-0000-0000-0000-000000000000';
 
         $object = new \stdClass();
@@ -561,7 +560,7 @@ class ModelToElasticaAutoTransformerTest extends TestCase
     }
 
     /**
-     * @param null|\Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher
+     * @param EventDispatcherInterface|null $dispatcher
      *
      * @return ModelToElasticaAutoTransformer
      */

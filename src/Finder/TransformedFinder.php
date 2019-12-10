@@ -35,10 +35,6 @@ class TransformedFinder implements PaginatedFinderInterface
      */
     protected $transformer;
 
-    /**
-     * @param SearchableInterface                 $searchable
-     * @param ElasticaToModelTransformerInterface $transformer
-     */
     public function __construct(SearchableInterface $searchable, ElasticaToModelTransformerInterface $transformer)
     {
         $this->searchable = $searchable;
@@ -57,7 +53,7 @@ class TransformedFinder implements PaginatedFinderInterface
 
     /**
      * @param $query
-     * @param null|int $limit
+     * @param int|null $limit
      * @param array    $options
      *
      * @return array
@@ -112,7 +108,7 @@ class TransformedFinder implements PaginatedFinderInterface
 
     /**
      * @param $query
-     * @param null|int $limit
+     * @param int|null $limit
      * @param array    $options
      *
      * @return array

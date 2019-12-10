@@ -28,7 +28,7 @@ final class MongoDBPagerProvider implements PagerProviderInterface
      * @var ManagerRegistry
      */
     private $doctrine;
-    
+
     /**
      * @var array
      */
@@ -40,10 +40,7 @@ final class MongoDBPagerProvider implements PagerProviderInterface
     private $registerListenersService;
 
     /**
-     * @param ManagerRegistry $doctrine
-     * @param RegisterListenersService $registerListenersService
      * @param string $objectClass
-     * @param array $baseOptions
      */
     public function __construct(ManagerRegistry $doctrine, RegisterListenersService $registerListenersService, $objectClass, array $baseOptions)
     {
@@ -56,7 +53,7 @@ final class MongoDBPagerProvider implements PagerProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function provide(array $options = array())
+    public function provide(array $options = [])
     {
         $options = array_replace($this->baseOptions, $options);
 

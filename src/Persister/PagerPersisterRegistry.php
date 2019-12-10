@@ -18,7 +18,7 @@ final class PagerPersisterRegistry implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
-    /** 
+    /**
      * @var string[]
      */
     private $nameToServiceIdMap = [];

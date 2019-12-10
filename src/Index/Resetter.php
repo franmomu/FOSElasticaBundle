@@ -11,12 +11,14 @@
 
 namespace FOS\ElasticaBundle\Index;
 
+use Elastica\Client;
 use Elastica\Exception\ResponseException;
 use Elastica\Type\Mapping;
 use FOS\ElasticaBundle\Configuration\ManagerInterface;
-use Elastica\Client;
-use FOS\ElasticaBundle\Event\IndexResetEvent;
-use FOS\ElasticaBundle\Event\TypeResetEvent;
+use FOS\ElasticaBundle\Event\PostIndexResetEvent;
+use FOS\ElasticaBundle\Event\PostTypeResetEvent;
+use FOS\ElasticaBundle\Event\PreIndexResetEvent;
+use FOS\ElasticaBundle\Event\PreTypeResetEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\LegacyEventDispatcherProxy;
 
@@ -51,12 +53,7 @@ class Resetter implements ResetterInterface
     private $mappingBuilder;
 
     /**
-     * @param ManagerInterface         $configManager
-     * @param IndexManager             $indexManager
-     * @param AliasProcessor           $aliasProcessor
-     * @param MappingBuilder           $mappingBuilder
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param Client                   $client
+     * @param Client $client
      */
     public function __construct(
         ManagerInterface $configManager,
@@ -109,8 +106,7 @@ class Resetter implements ResetterInterface
             $this->aliasProcessor->setRootName($indexConfig, $index);
         }
 
-        $event = new IndexResetEvent($indexName, $populating, $force);
-        $this->dispatcher->dispatch(IndexResetEvent::PRE_INDEX_RESET, $event);
+        $this->dispatcher->dispatch(new PreIndexResetEvent($indexName, $populating, $force));
 
         $mapping = $this->mappingBuilder->buildIndexMapping($indexConfig);
         $index->create($mapping, true);
@@ -119,7 +115,7 @@ class Resetter implements ResetterInterface
             $this->aliasProcessor->switchIndexAlias($indexConfig, $index, $force);
         }
 
-        $this->dispatcher->dispatch(IndexResetEvent::POST_INDEX_RESET, $event);
+        $this->dispatcher->dispatch(new PostIndexResetEvent($indexName, $populating, $force));
     }
 
     /**
@@ -140,8 +136,7 @@ class Resetter implements ResetterInterface
         $index = $this->indexManager->getIndex($indexName);
         $type = $index->getType($typeName);
 
-        $event = new TypeResetEvent($indexName, $typeName);
-        $this->dispatcher->dispatch(TypeResetEvent::PRE_TYPE_RESET, $event);
+        $this->dispatcher->dispatch(new PreTypeResetEvent($indexName, $typeName));
 
         $mapping = new Mapping();
         foreach ($this->mappingBuilder->buildTypeMapping($typeConfig) as $name => $field) {
@@ -150,7 +145,7 @@ class Resetter implements ResetterInterface
 
         $type->setMapping($mapping);
 
-        $this->dispatcher->dispatch(TypeResetEvent::POST_TYPE_RESET, $event);
+        $this->dispatcher->dispatch(new PostTypeResetEvent($indexName, $typeName));
     }
 
     /**

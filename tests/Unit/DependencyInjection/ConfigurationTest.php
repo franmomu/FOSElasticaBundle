@@ -322,12 +322,12 @@ class ConfigurationTest extends TestCase
         ]);
         $connection = $configuration['clients']['default']['connections'][0];
         $this->assertSame([400, 403, 404], $connection['http_error_codes']);
-        
+
         // test custom
         $configuration = $this->getConfigs([
             'clients' => [
                 'default' => [
-                    'http_error_codes' => ['HTTP_ERROR_CODE']
+                    'http_error_codes' => ['HTTP_ERROR_CODE'],
                 ],
             ],
         ]);
@@ -342,10 +342,10 @@ class ConfigurationTest extends TestCase
                 'index_templates' => [
                     'some_template' => [
                         'template' => 'some_template_*',
-                        'client'   => 'default',
-                        'types'    => [
+                        'client' => 'default',
+                        'types' => [
                             'some_type' => [
-                                'properties'  => [
+                                'properties' => [
                                     'some_field' => [],
                                 ],
                             ],

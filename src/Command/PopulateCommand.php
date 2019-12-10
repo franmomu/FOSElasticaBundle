@@ -12,11 +12,12 @@
 namespace FOS\ElasticaBundle\Command;
 
 use Elastica\Exception\Bulk\ResponseException as BulkResponseException;
-use FOS\ElasticaBundle\Event\IndexPopulateEvent;
-use FOS\ElasticaBundle\Event\TypePopulateEvent;
+use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
+use FOS\ElasticaBundle\Event\PostTypePopulateEvent;
+use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
+use FOS\ElasticaBundle\Event\PreTypePopulateEvent;
 use FOS\ElasticaBundle\Index\IndexManager;
 use FOS\ElasticaBundle\Index\Resetter;
-use FOS\ElasticaBundle\Persister\Event\Events;
 use FOS\ElasticaBundle\Persister\Event\OnExceptionEvent;
 use FOS\ElasticaBundle\Persister\Event\PostAsyncInsertObjectsEvent;
 use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
@@ -32,7 +33,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\LegacyEventDispatcherProxy;
 
 /**
  * Populate the search index.
@@ -42,12 +42,12 @@ class PopulateCommand extends Command
     protected static $defaultName = 'fos:elastica:populate';
 
     /**
-     * @var EventDispatcherInterface 
+     * @var EventDispatcherInterface
      */
     private $dispatcher;
 
     /**
-     * @var IndexManager 
+     * @var IndexManager
      */
     private $indexManager;
 
@@ -81,11 +81,6 @@ class PopulateCommand extends Command
         parent::__construct();
 
         $this->dispatcher = $dispatcher;
-
-        if (class_exists(LegacyEventDispatcherProxy::class)) {
-            $this->dispatcher = LegacyEventDispatcherProxy::decorate($dispatcher);
-        }
-
         $this->indexManager = $indexManager;
         $this->pagerProviderRegistry = $pagerProviderRegistry;
         $this->pagerPersisterRegistry = $pagerPersisterRegistry;
@@ -170,20 +165,21 @@ class PopulateCommand extends Command
                 $this->populateIndex($output, $index, $reset, $options);
             }
         }
+
+        return 0;
     }
 
     /**
      * Recreates an index, populates its types, and refreshes the index.
      *
-     * @param OutputInterface $output
-     * @param string          $index
-     * @param bool            $reset
-     * @param array           $options
+     * @param string $index
+     * @param bool   $reset
+     * @param array  $options
      */
     private function populateIndex(OutputInterface $output, $index, $reset, $options)
     {
-        $event = new IndexPopulateEvent($index, $reset, $options);
-        $this->dispatcher->dispatch(IndexPopulateEvent::PRE_INDEX_POPULATE, $event);
+        $event = new PreIndexPopulateEvent($index, $reset, $options);
+        $this->dispatcher->dispatch($event);
 
         if ($event->isReset()) {
             $output->writeln(sprintf('<info>Resetting</info> <comment>%s</comment>', $index));
@@ -195,7 +191,7 @@ class PopulateCommand extends Command
             $this->populateIndexType($output, $index, $type, false, $event->getOptions());
         }
 
-        $this->dispatcher->dispatch(IndexPopulateEvent::POST_INDEX_POPULATE, $event);
+        $this->dispatcher->dispatch(new PostIndexPopulateEvent($index, $reset, $options));
 
         $this->refreshIndex($output, $index);
     }
@@ -203,16 +199,15 @@ class PopulateCommand extends Command
     /**
      * Deletes/remaps an index type, populates it, and refreshes the index.
      *
-     * @param OutputInterface $output
-     * @param string          $index
-     * @param string          $type
-     * @param bool            $reset
-     * @param array           $options
+     * @param string $index
+     * @param string $type
+     * @param bool   $reset
+     * @param array  $options
      */
     private function populateIndexType(OutputInterface $output, $index, $type, $reset, $options)
     {
-        $event = new TypePopulateEvent($index, $type, $reset, $options);
-        $this->dispatcher->dispatch(TypePopulateEvent::PRE_TYPE_POPULATE, $event);
+        $event = new PreTypePopulateEvent($index, $type, $reset, $options);
+        $this->dispatcher->dispatch($event);
 
         if ($event->isReset()) {
             $output->writeln(sprintf('<info>Resetting</info> <comment>%s/%s</comment>', $index, $type));
@@ -223,8 +218,8 @@ class PopulateCommand extends Command
         $loggerClosure = ProgressClosureBuilder::build($output, 'Populating', $index, $type, $offset);
 
         $this->dispatcher->addListener(
-            Events::ON_EXCEPTION,
-            function(OnExceptionEvent $event) use ($loggerClosure) {
+            OnExceptionEvent::class,
+            function (OnExceptionEvent $event) use ($loggerClosure) {
                 $loggerClosure(
                     count($event->getObjects()),
                     $event->getPager()->getNbResults(),
@@ -234,21 +229,21 @@ class PopulateCommand extends Command
         );
 
         $this->dispatcher->addListener(
-            Events::POST_INSERT_OBJECTS,
-            function(PostInsertObjectsEvent $event) use ($loggerClosure) {
+            PostInsertObjectsEvent::class,
+            function (PostInsertObjectsEvent $event) use ($loggerClosure) {
                 $loggerClosure(count($event->getObjects()), $event->getPager()->getNbResults());
             }
         );
 
         $this->dispatcher->addListener(
-            Events::POST_ASYNC_INSERT_OBJECTS,
-            function(PostAsyncInsertObjectsEvent $event) use ($loggerClosure) {
+            PostAsyncInsertObjectsEvent::class,
+            function (PostAsyncInsertObjectsEvent $event) use ($loggerClosure) {
                 $loggerClosure($event->getObjectsCount(), $event->getPager()->getNbResults(), $event->getErrorMessage());
             }
         );
 
         if ($options['ignore_errors']) {
-            $this->dispatcher->addListener(Events::ON_EXCEPTION, function(OnExceptionEvent $event) {
+            $this->dispatcher->addListener(OnExceptionEvent::class, function (OnExceptionEvent $event) {
                 if ($event->getException() instanceof BulkResponseException) {
                     $event->setIgnore(true);
                 }
@@ -264,7 +259,7 @@ class PopulateCommand extends Command
 
         $this->pagerPersister->insert($pager, $options);
 
-        $this->dispatcher->dispatch(TypePopulateEvent::POST_TYPE_POPULATE, $event);
+        $this->dispatcher->dispatch(new PostTypePopulateEvent($index, $type, $reset, $options));
 
         $this->refreshIndex($output, $index);
     }
@@ -272,12 +267,12 @@ class PopulateCommand extends Command
     /**
      * Refreshes an index.
      *
-     * @param OutputInterface $output
-     * @param string          $index
+     * @param string $index
      */
     private function refreshIndex(OutputInterface $output, $index)
     {
         $output->writeln(sprintf('<info>Refreshing</info> <comment>%s</comment>', $index));
         $this->indexManager->getIndex($index)->refresh();
+        $output->writeln('');
     }
 }

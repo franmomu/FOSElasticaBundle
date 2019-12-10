@@ -12,7 +12,8 @@
 namespace FOS\ElasticaBundle\Transformer;
 
 use Elastica\Document;
-use FOS\ElasticaBundle\Event\TransformEvent;
+use FOS\ElasticaBundle\Event\PostTransformEvent;
+use FOS\ElasticaBundle\Event\PreTransformEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\LegacyEventDispatcherProxy;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
@@ -49,7 +50,6 @@ class ModelToElasticaAutoTransformer implements ModelToElasticaTransformerInterf
     /**
      * Instanciates a new Mapper.
      *
-     * @param array                    $options
      * @param EventDispatcherInterface $dispatcher
      */
     public function __construct(array $options = [], EventDispatcherInterface $dispatcher = null)
@@ -64,8 +64,6 @@ class ModelToElasticaAutoTransformer implements ModelToElasticaTransformerInterf
 
     /**
      * Set the PropertyAccessor.
-     *
-     * @param PropertyAccessorInterface $propertyAccessor
      */
     public function setPropertyAccessor(PropertyAccessorInterface $propertyAccessor)
     {
@@ -158,8 +156,8 @@ class ModelToElasticaAutoTransformer implements ModelToElasticaTransformerInterf
         $document = new Document($identifier, [], '', $this->options['index']);
 
         if ($this->dispatcher) {
-            $event = new TransformEvent($document, $fields, $object);
-            $this->dispatcher->dispatch(TransformEvent::PRE_TRANSFORM, $event);
+            $event = new PreTransformEvent($document, $fields, $object);
+            $this->dispatcher->dispatch($event);
 
             $document = $event->getDocument();
         }
@@ -208,8 +206,8 @@ class ModelToElasticaAutoTransformer implements ModelToElasticaTransformerInterf
         }
 
         if ($this->dispatcher) {
-            $event = new TransformEvent($document, $fields, $object);
-            $this->dispatcher->dispatch(TransformEvent::POST_TRANSFORM, $event);
+            $event = new PostTransformEvent($document, $fields, $object);
+            $this->dispatcher->dispatch($event);
 
             $document = $event->getDocument();
         }

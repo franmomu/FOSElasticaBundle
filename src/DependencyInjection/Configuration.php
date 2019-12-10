@@ -39,13 +39,7 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder('fos_elastica');
-
-        if (method_exists($treeBuilder, 'getRootNode')) {
-            $rootNode = $treeBuilder->getRootNode();
-        } else {
-            // BC layer for symfony/config 4.1 and older
-            $rootNode = $treeBuilder->root('fos_elastica');
-        }
+        $rootNode = $treeBuilder->getRootNode();
 
         $this->addClientsSection($rootNode);
         $this->addIndexesSection($rootNode);
@@ -456,7 +450,7 @@ class Configuration implements ConfigurationInterface
                                         ->arrayNode('http_error_codes')
                                             ->beforeNormalization()
                                                 ->ifTrue(function ($v) { return !is_array($v); })
-                                                ->then(function ($v) { return array($v); })
+                                                ->then(function ($v) { return [$v]; })
                                             ->end()
                                             ->requiresAtLeastOneElement()
                                             ->defaultValue([400, 403, 404])
@@ -559,8 +553,6 @@ class Configuration implements ConfigurationInterface
 
     /**
      * Adds the configuration for the "index_templates" key.
-     *
-     * @param ArrayNodeDefinition $rootNode
      *
      * @return void
      */

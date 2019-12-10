@@ -12,20 +12,10 @@
 namespace FOS\ElasticaBundle\Event;
 
 use Elastica\Document;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class TransformEvent extends Event
 {
-    /**
-     * @Event("FOS\ElasticaBundle\Event\TransformEvent")
-     */
-    const PRE_TRANSFORM = 'fos_elastica.pre_transform';
-
-    /**
-     * @Event("FOS\ElasticaBundle\Event\TransformEvent")
-     */
-    const POST_TRANSFORM = 'fos_elastica.post_transform';
-
     /**
      * @var Document
      */
@@ -42,8 +32,7 @@ class TransformEvent extends Event
     private $object;
 
     /**
-     * @param mixed $document
-     * @param array $fields
+     * @param mixed  $document
      * @param object $object
      */
     public function __construct($document, array $fields, $object)

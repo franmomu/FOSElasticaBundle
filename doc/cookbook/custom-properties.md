@@ -12,8 +12,8 @@ parameters.
 
 namespace AcmeBundle\EventListener;
 
+use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use FOS\ElasticaBundle\Event\TransformEvent;
 
 class CustomPropertyListener implements EventSubscriberInterface
 {
@@ -21,7 +21,7 @@ class CustomPropertyListener implements EventSubscriberInterface
     
     // ...
     
-    public function addCustomProperty(TransformEvent $event)
+    public function addCustomProperty(PostTransformEvent $event)
     {
         $document = $event->getDocument();
         $custom = $this->anotherService->calculateCustom($event->getObject());
@@ -32,7 +32,7 @@ class CustomPropertyListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            TransformEvent::POST_TRANSFORM => 'addCustomProperty',
+            PostTransformEvent::class => 'addCustomProperty',
         );
     }
 }
