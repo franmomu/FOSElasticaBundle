@@ -11,7 +11,6 @@
 
 namespace FOS\ElasticaBundle\Tests\Unit\Persister\Listener;
 
-use FOS\ElasticaBundle\Persister\Event\Events;
 use FOS\ElasticaBundle\Persister\Event\PreInsertObjectsEvent;
 use FOS\ElasticaBundle\Persister\Listener\FilterObjectsListener;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
@@ -31,7 +30,7 @@ class FilterObjectsListenerTest extends TestCase
 
     public function testShouldSubscribeOnPreInsertObjectsEvent()
     {
-        $this->assertSame([Events::PRE_INSERT_OBJECTS => 'filterObjects'], FilterObjectsListener::getSubscribedEvents());
+        $this->assertSame([PreInsertObjectsEvent::class => 'filterObjects'], FilterObjectsListener::getSubscribedEvents());
     }
 
     public function testCouldBeConstructedWithIndexableAsFirstArgument()

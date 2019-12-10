@@ -16,7 +16,6 @@ use FOS\ElasticaBundle\Event\IndexPopulateEvent;
 use FOS\ElasticaBundle\Event\TypePopulateEvent;
 use FOS\ElasticaBundle\Index\IndexManager;
 use FOS\ElasticaBundle\Index\Resetter;
-use FOS\ElasticaBundle\Persister\Event\Events;
 use FOS\ElasticaBundle\Persister\Event\OnExceptionEvent;
 use FOS\ElasticaBundle\Persister\Event\PostAsyncInsertObjectsEvent;
 use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
@@ -42,12 +41,12 @@ class PopulateCommand extends Command
     protected static $defaultName = 'fos:elastica:populate';
 
     /**
-     * @var EventDispatcherInterface 
+     * @var EventDispatcherInterface
      */
     private $dispatcher;
 
     /**
-     * @var IndexManager 
+     * @var IndexManager
      */
     private $indexManager;
 
@@ -225,7 +224,7 @@ class PopulateCommand extends Command
         $loggerClosure = ProgressClosureBuilder::build($output, 'Populating', $index, $type, $offset);
 
         $this->dispatcher->addListener(
-            Events::ON_EXCEPTION,
+            OnExceptionEvent::class,
             function(OnExceptionEvent $event) use ($loggerClosure) {
                 $loggerClosure(
                     count($event->getObjects()),
@@ -236,21 +235,21 @@ class PopulateCommand extends Command
         );
 
         $this->dispatcher->addListener(
-            Events::POST_INSERT_OBJECTS,
+            PostInsertObjectsEvent::class,
             function(PostInsertObjectsEvent $event) use ($loggerClosure) {
                 $loggerClosure(count($event->getObjects()), $event->getPager()->getNbResults());
             }
         );
 
         $this->dispatcher->addListener(
-            Events::POST_ASYNC_INSERT_OBJECTS,
+            PostAsyncInsertObjectsEvent::class,
             function(PostAsyncInsertObjectsEvent $event) use ($loggerClosure) {
                 $loggerClosure($event->getObjectsCount(), $event->getPager()->getNbResults(), $event->getErrorMessage());
             }
         );
 
         if ($options['ignore_errors']) {
-            $this->dispatcher->addListener(Events::ON_EXCEPTION, function(OnExceptionEvent $event) {
+            $this->dispatcher->addListener(OnExceptionEvent::class, function(OnExceptionEvent $event) {
                 if ($event->getException() instanceof BulkResponseException) {
                     $event->setIgnore(true);
                 }
